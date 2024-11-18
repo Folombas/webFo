@@ -1,30 +1,62 @@
 document.querySelectorAll('.nav-button').forEach(button => {
 	button.addEventListener('click', function (e) {
-		// Add matrix color effect
-		this.style.background = 'linear-gradient(45deg, #00ff00, #003300)';
-		this.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.5)';
+		// Remove any existing spark effects
+		this.classList.remove('sparking');
 
-		// Create splash effect
-		const splash = document.createElement('div');
-		splash.className = 'splash';
+		// Create spark particles
+		for (let i = 0; i < 10; i++) {
+			const spark = document.createElement('div');
+			spark.style.cssText = `
+                        position: absolute;
+                        width: 4px;
+                        height: 4px;
+                        background: var(--neon-color);
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 1000;
+                    `;
 
-		const rect = this.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-		splash.style.left = x + 'px';
-		splash.style.top = y + 'px';
+			const rect = this.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			const y = e.clientY - rect.top;
 
-		this.appendChild(splash);
+			spark.style.left = x + 'px';
+			spark.style.top = y + 'px';
 
-		// Animate button
-		this.style.transform = 'scale(1.1)';
+			this.appendChild(spark);
 
-		// Reset button styles after animation
+			const angle = Math.random() * Math.PI * 2;
+			const velocity = 2 + Math.random() * 4;
+			const dx = Math.cos(angle) * velocity;
+			const dy = Math.sin(angle) * velocity;
+
+			let opacity = 1;
+
+			const animate = () => {
+				const currentLeft = parseFloat(spark.style.left);
+				const currentTop = parseFloat(spark.style.top);
+
+				spark.style.left = currentLeft + dx + 'px';
+				spark.style.top = currentTop + dy + 'px';
+				opacity -= 0.05;
+				spark.style.opacity = opacity;
+
+				if (opacity > 0) {
+					requestAnimationFrame(animate);
+				} else {
+					spark.remove();
+				}
+			};
+
+			requestAnimationFrame(animate);
+		}
+
+		// Add sparking effect
+		this.classList.add('sparking');
+
+		// Remove sparking class after animation
 		setTimeout(() => {
-			this.style.background = 'linear-gradient(45deg, #2a3a4a, #1a2530)';
-			this.style.boxShadow = '';
-			this.style.transform = '';
-			splash.remove();
-		}, 600);
+			this.classList.remove('sparking');
+		}, 500);
 	});
 });
